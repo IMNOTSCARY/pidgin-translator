@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PidginPress — Nigerian Pidgin Translator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Source+Serif+4:ital,wght@0,300;0,400;1,300&family=Space+Mono&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ink: #1a1208;
+      --paper: #f5f0e8;
+      --rule: #1a1208;
+      --accent: #b5451b;
+      --muted: #7a6f5e;
+      --mono: 'Space Mono', monospace;
+      --serif: 'Source Serif 4', serif;
+      --display: 'Playfair Display', serif;
+    }
+
+    body {
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--serif);
+      min-height: 100vh;
+    }
+
+    /* ── MASTHEAD ── */
+    .masthead {
+      border-bottom: 3px double var(--rule);
+      padding: 18px 24px 12px;
+      text-align: center;
+    }
+
+    .masthead-dateline {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .masthead-title {
+      font-family: var(--display);
+      font-size: clamp(2.2rem, 8vw, 4rem);
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      line-height: 1;
+      color: var(--ink);
+    }
+
+    .masthead-title span {
+      color: var(--accent);
+    }
+
+    .masthead-tagline {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-top: 5px;
+      font-weight: 300;
+    }
+
+    /* ── SUBHEADER ── */
+    .subheader {
+      border-bottom: 1px solid var(--rule);
+      padding: 7px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .subheader-label {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .direction-toggle {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      border: 1px solid var(--ink);
+    }
+
+    .direction-toggle button {
+      background: none;
+      border: none;
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 5px 12px;
+      cursor: pointer;
+      color: var(--muted);
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .direction-toggle button.active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+
+    .direction-toggle .divider {
+      width: 1px;
+      height: 24px;
+      background: var(--ink);
+    }
+
+    /* ── MAIN ── */
+    main {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 24px 20px 48px;
+    }
+
+    .section-rule {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .section-rule::before,
+    .section-rule::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--rule);
+    }
+
+    .section-label {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .input-area {
+      width: 100%;
+      min-height: 140px;
+      background: transparent;
+      border: 1px solid var(--ink);
+      padding: 14px 16px;
+      font-family: var(--serif);
+      font-size: 1rem;
+      color: var(--ink);
+      resize: vertical;
+      outline: none;
+      line-height: 1.6;
+    }
+
+    .input-area::placeholder {
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    .input-area:focus {
+      border-color: var(--accent);
+    }
+
+    .translate-btn {
+      display: block;
+      width: 100%;
+      margin-top: 12px;
+      padding: 13px;
+      background: var(--ink);
+      color: var(--paper);
+      font-family: var(--display);
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      border: none;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .translate-btn:hover {
+      background: var(--accent);
+    }
+
+    .translate-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* ── OUTPUT ── */
+    .output-section {
+      margin-top: 28px;
+    }
+
+    .output-box {
+      border: 1px solid var(--ink);
+      min-height: 120px;
+      padding: 16px;
+      position: relative;
+    }
+
+    .output-text {
+      font-family: var(--serif);
+      font-size: 1.05rem;
+      line-height: 1.7;
+      color: var(--ink);
+    }
+
+    .output-placeholder {
+      font-family: var(--serif);
+      font-style: italic;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .loading-dots {
+      display: inline-flex;
+      gap: 4px;
+      align-items: center;
+    }
+
+    .loading-dots span {
+      width: 6px;
+      height: 6px;
+      background: var(--muted);
+      border-radius: 50%;
+      animation: pulse 1.2s infinite;
+    }
+
+    .loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes pulse {
+      0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); }
+      40% { opacity: 1; transform: scale(1); }
+    }
+
+    .copy-btn {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      background: none;
+      border: 1px solid var(--muted);
+      font-family: var(--mono);
+      font-size: 8px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 4px 8px;
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s;
+    }
+
+    .copy-btn:hover {
+      border-color: var(--ink);
+      color: var(--ink);
+    }
+
+    .error-msg {
+      color: var(--accent);
+      font-family: var(--mono);
+      font-size: 0.8rem;
+      margin-top: 8px;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 3px double var(--rule);
+      padding: 14px 24px;
+      text-align: center;
+    }
+
+    .footer-text {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    @media (max-width: 480px) {
+      .subheader { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="masthead">
+    <div class="masthead-dateline" id="dateline">Loading...</div>
+    <div class="masthead-title">Pidgin<span>Press</span></div>
+    <div class="masthead-tagline">The authoritative record of Nigerian Pidgin English</div>
+  </header>
+
+  <div class="subheader">
+    <span class="subheader-label">Translation Direction</span>
+    <div class="direction-toggle">
+      <button class="active" id="btn-to-pidgin" onclick="setDirection('to-pidgin')">English → Pidgin</button>
+      <div class="divider"></div>
+      <button id="btn-to-english" onclick="setDirection('to-english')">Pidgin → English</button>
+    </div>
+  </div>
+
+  <main>
+    <div class="section-rule">
+      <span class="section-label" id="input-label">Enter English Text</span>
+    </div>
+
+    <textarea
+      class="input-area"
+      id="input-text"
+      placeholder="Type your text here…"
+      rows="6"
+    ></textarea>
+
+    <button class="translate-btn" id="translate-btn" onclick="translate()">
+      Translate
+    </button>
+
+    <div class="output-section">
+      <div class="section-rule" style="margin-top: 0;">
+        <span class="section-label" id="output-label">Translation</span>
+      </div>
+
+      <div class="output-box">
+        <div id="output-content">
+          <span class="output-placeholder">Your translation will appear here.</span>
+        </div>
+        <button class="copy-btn" id="copy-btn" onclick="copyText()" style="display:none;">Copy</button>
+      </div>
+
+      <div class="error-msg" id="error-msg"></div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-text">PidginPress &mdash; Powered by AI &mdash; Made in Nigeria</div>
+  </footer>
+
+  <script>
+    // ── CONFIG ──────────────────────────────────────────────
+    // IMPORTANT: Replace this with your actual Render backend URL after deployment
+    const API_URL = "https://YOUR-APP-NAME.onrender.com/translate";
+    // ────────────────────────────────────────────────────────
+
+    let currentDirection = "to-pidgin";
+    let currentTranslation = "";
+
+    // Set dateline
+    const now = new Date();
+    document.getElementById("dateline").textContent =
+      now.toLocaleDateString("en-NG", { weekday: "long", year: "numeric", month: "long", day: "numeric" }).toUpperCase();
+
+    function setDirection(dir) {
+      currentDirection = dir;
+      document.getElementById("btn-to-pidgin").classList.toggle("active", dir === "to-pidgin");
+      document.getElementById("btn-to-english").classList.toggle("active", dir === "to-english");
+      document.getElementById("input-label").textContent = dir === "to-pidgin" ? "Enter English Text" : "Enter Pidgin Text";
+      document.getElementById("output-label").textContent = dir === "to-pidgin" ? "Pidgin Translation" : "English Translation";
+      document.getElementById("input-text").placeholder = dir === "to-pidgin" ? "Type English here…" : "Type Pidgin here…";
+      resetOutput();
+    }
+
+    function resetOutput() {
+      document.getElementById("output-content").innerHTML = '<span class="output-placeholder">Your translation will appear here.</span>';
+      document.getElementById("copy-btn").style.display = "none";
+      document.getElementById("error-msg").textContent = "";
+      currentTranslation = "";
+    }
+
+    async function translate() {
+      const text = document.getElementById("input-text").value.trim();
+      if (!text) return;
+
+      const btn = document.getElementById("translate-btn");
+      btn.disabled = true;
+      btn.textContent = "Translating…";
+
+      document.getElementById("error-msg").textContent = "";
+      document.getElementById("copy-btn").style.display = "none";
+      document.getElementById("output-content").innerHTML =
+        '<div class="loading-dots"><span></span><span></span><span></span></div>';
+
+      try {
+        const res = await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text, direction: currentDirection }),
+        });
+
+        const data = await res.json();
+
+        if (!res.ok || data.error) {
+          throw new Error(data.error || "Something went wrong");
+        }
+
+        currentTranslation = data.translation;
+        document.getElementById("output-content").innerHTML =
+          `<span class="output-text">${escapeHtml(data.translation)}</span>`;
+        document.getElementById("copy-btn").style.display = "block";
+
+      } catch (err) {
+        document.getElementById("output-content").innerHTML =
+          '<span class="output-placeholder">Translation failed.</span>';
+        document.getElementById("error-msg").textContent = "Error: " + err.message;
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Translate";
+      }
+    }
+
+    function copyText() {
+      if (!currentTranslation) return;
+      navigator.clipboard.writeText(currentTranslation).then(() => {
+        const btn = document.getElementById("copy-btn");
+        btn.textContent = "Copied!";
+        setTimeout(() => { btn.textContent = "Copy"; }, 2000);
+      });
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+    }
+
+    // Allow Ctrl+Enter or Cmd+Enter to translate
+    document.getElementById("input-text").addEventListener("keydown", (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "Enter") translate();
+    });
+  </script>
+
+</body>
+</html>
